@@ -1,0 +1,12 @@
+Metadata-Version: 2.4
+Name: django-project
+Version: 0.1.0
+Summary: Add your description here
+Requires-Python: >=3.13
+Description-Content-Type: text/markdown
+Requires-Dist: django>=5.2.2
+Requires-Dist: djangorestframework>=3.16.0
+Provides-Extra: dev
+Requires-Dist: drf-yasg>=1.21.10; extra == "dev"
+Requires-Dist: black>=23.9.1; extra == "dev"
+Requires-Dist: isort>=5.12.0; extra == "dev"
