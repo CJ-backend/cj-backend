@@ -15,8 +15,8 @@ jobs:
       POSTGRES_DB:      ${{ secrets.POSTGRES_DB }}
       POSTGRES_USER:    ${{ secrets.POSTGRES_USER }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      POSTGRES_HOST:    ${{ secrets.POSTGRES_HOST || 'localhost' }}
-      POSTGRES_PORT:    ${{ secrets.POSTGRES_PORT || '5432' }}
+      POSTGRES_HOST:    ${{ secrets.POSTGRES_HOST }}
+      POSTGRES_PORT:    ${{ secrets.POSTGRES_PORT }}
 
     # services 키워드를 사용하여 PostgreSQL 서비스를 설정
     services:
@@ -44,10 +44,13 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install uv (Poetry wrapper)
+      - name: Install uv
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Create virtual environment
+        run: uv venv
 
       - name: Install packages & dev deps
         run: uv pip install ".[dev]"
