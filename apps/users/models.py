@@ -24,17 +24,18 @@ class CustomUserManager(BaseUserManager):
             raise ValueError("Superuser must have is_superuser=True.")
         return self.create_user(email, password, **extra_fields)
 
+
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     # 커스텀 유저 모델
-    email = models.EmailField('이메일',max_length=255, unique=True)
-    nickname = models.CharField('닉네임',max_length=20, unique=True)
-    name = models.CharField('이름',max_length=30)
-    phone_number = models.CharField('전화번호',max_length=11, blank=True, null=True)
+    email = models.EmailField("이메일", max_length=255, unique=True)
+    nickname = models.CharField("닉네임", max_length=20, unique=True)
+    name = models.CharField("이름", max_length=30)
+    phone_number = models.CharField("전화번호", max_length=11, blank=True, null=True)
     # AbstractBaseUser를 상속할때 password, last_login을 제공
     # last_login = models.DateTimeField(auto_now=True)
-    is_active = models.BooleanField('계정 활성화',default=True)
-    is_staff = models.BooleanField('스태프 여부',default=False)
-    is_superuser = models.BooleanField('관리자 여부',default=False)
+    is_active = models.BooleanField("계정 활성화", default=True)
+    is_staff = models.BooleanField("스태프 여부", default=False)
+    is_superuser = models.BooleanField("관리자 여부", default=False)
 
     objects = CustomUserManager()
 
