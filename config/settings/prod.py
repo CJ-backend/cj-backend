@@ -23,6 +23,9 @@ DATABASES = {
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_ROOT = BASE_DIR / "mediafiles"
 
+# 프로덕션 미디어 URL
+MEDIA_URL = "/media/"
+
 # 보안 관련 설정 예시
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True

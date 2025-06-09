@@ -39,9 +39,14 @@ DJANGO_APPS = [
     "django.contrib.staticfiles",
 ]
 
-OWNER_APPS = []
+OWNER_APPS = [
+    "apps.users.apps.UsersConfig",
+    "apps.accounts.apps.AccountsConfig",
+]
 
-THIRD_PARTY_APPS = []
+THIRD_PARTY_APPS = [
+    "rest_framework",
+]
 
 INSTALLED_APPS = DJANGO_APPS + OWNER_APPS + THIRD_PARTY_APPS
 
@@ -126,3 +131,5 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+AUTH_USER_MODEL = "users.User"

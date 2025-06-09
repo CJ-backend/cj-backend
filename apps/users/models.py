@@ -1,9 +1,11 @@
+import uuid
+
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 
 
-class CustomUserManager(BaseUserManager):
+class UserManager(BaseUserManager):
     # 일반 유저 메서드
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -25,8 +27,9 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
-class CustomUser(AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser, PermissionsMixin):
     # 커스텀 유저 모델
+    user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField("이메일", max_length=255, unique=True)
     nickname = models.CharField("닉네임", max_length=20, unique=True)
     name = models.CharField("이름", max_length=30)
@@ -37,7 +40,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField("스태프 여부", default=False)
     is_superuser = models.BooleanField("관리자 여부", default=False)
 
-    objects = CustomUserManager()
+    objects = UserManager()
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["nickname", "name"]
