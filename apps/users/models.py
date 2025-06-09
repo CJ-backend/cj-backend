@@ -2,6 +2,7 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 
+
 class CustomUserManager(BaseUserManager):
     # 일반 유저 메서드
     def create_user(self, email, password=None, **extra_fields):
