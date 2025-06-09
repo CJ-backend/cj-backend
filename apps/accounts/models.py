@@ -4,12 +4,8 @@ from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import models
 
-from apps.constants import (
-    ACCOUNT_TYPE,
-    BANK_CODES,
-    TRANSACTION_METHOD,
-    TRANSACTION_TYPE,
-)
+from apps.constants import (ACCOUNT_TYPE, BANK_CODES, TRANSACTION_METHOD,
+                            TRANSACTION_TYPE)
 
 
 # 유저의 계좌 정보를 저장하는 테이블
