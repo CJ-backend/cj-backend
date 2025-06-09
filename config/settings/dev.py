@@ -20,7 +20,7 @@ STATICFILES_DIRS = [
 ]
 
 # 개발용 미디어 설정
-MEDIA_URL  = "/media/"
+MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # 이메일 백엔드 등 개발 전용 설정(콘솔 출력 등)
