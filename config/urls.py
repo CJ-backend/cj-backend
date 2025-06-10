@@ -18,6 +18,9 @@ Including another URLconf
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+from rest_framework import permissions
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -27,9 +30,6 @@ urlpatterns = [
 
 # 개발 모드에서만 Swagger 문서 라우팅 추가
 if settings.DEBUG:
-    from drf_yasg import openapi
-    from drf_yasg.views import get_schema_view
-    from rest_framework import permissions
 
     schema_view = get_schema_view(
         openapi.Info(
@@ -45,19 +45,21 @@ if settings.DEBUG:
     )
 
     urlpatterns += [
+        # JSON / YAML schema
         path(
-            r"swagger(?P<format>\.json|\.yaml)",
-            schema_view.without_ui(cache_timeout=0),
-            name="schema-json",
+            "swagger.json", schema_view.without_ui(cache_timeout=0), name="schema-json"
         ),
+        path(
+            "swagger.yaml", schema_view.without_ui(cache_timeout=0), name="schema-yaml"
+        ),
+        # Swagger UI
         path(
             "swagger/",
             schema_view.with_ui("swagger", cache_timeout=0),
-            name="schema-swagger-ui",
+            name="swagger-ui",
         ),
-        path(
-            "redoc/",
-            schema_view.with_ui("redoc", cache_timeout=0),
-            name="schema-redoc",
-        ),
+        # Redoc UI
+        path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="redoc"),
+        # 기존 라우팅
+        path("api/v1/users/", include("apps.users.urls", namespace="users")),
     ]
