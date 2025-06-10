@@ -22,6 +22,13 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
+from apps.users.views import (
+    ActivateView,
+    CookieTokenObtainPairView,
+    CookieTokenRefreshView,
+    RegisterView,
+)
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     # apps 단위로 URL 분리 시 예시
@@ -62,4 +69,22 @@ if settings.DEBUG:
         path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="redoc"),
         # 기존 라우팅
         path("api/v1/users/", include("apps.users.urls", namespace="users")),
+        # 회원가입, 활성화
+        path("api/v1/users/register/", RegisterView.as_view(), name="user-register"),
+        path(
+            "api/v1/users/activate/<uuid:uid>/<str:token>/",
+            ActivateView.as_view(),
+            name="user-activate",
+        ),
+        # JWT 로그인/토큰 갱신
+        path(
+            "api/v1/auth/login/",
+            CookieTokenObtainPairView.as_view(),
+            name="token_obtain_pair",
+        ),
+        path(
+            "api/v1/auth/refresh/",
+            CookieTokenRefreshView.as_view(),
+            name="token_refresh",
+        ),
     ]

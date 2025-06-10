@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -40,15 +41,31 @@ DJANGO_APPS = [
 ]
 
 OWNER_APPS = [
-    "apps.users.apps.UsersConfig",
-    "apps.accounts.apps.AccountsConfig",
+    "apps.users",
+    "apps.accounts",
 ]
 
 THIRD_PARTY_APPS = [
     "rest_framework",
+    "rest_framework_simplejwt",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + OWNER_APPS + THIRD_PARTY_APPS
+
+REST_FRAMEWORK = {
+    # 인증 클래스를 여기에 추가
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "apps.users.authentication.CookieJWTAuthentication",  # 쿠키 기반 JWT 인증
+    ),
+}
+
+# Simple JWT 토큰 설정
+SIMPLE_JWT = {  # ← ③ 추가
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
