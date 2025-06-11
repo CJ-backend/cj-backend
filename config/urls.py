@@ -27,7 +27,8 @@ from apps.users.views import (
     CookieTokenObtainPairView,
     CookieTokenRefreshView,
     LogoutView,
-    RegisterView, ProfileView,
+    ProfileView,
+    RegisterView,
 )
 
 urlpatterns = [
@@ -90,5 +91,4 @@ if settings.DEBUG:
         ),
         # Redoc UI
         path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="redoc"),
-
     ]
