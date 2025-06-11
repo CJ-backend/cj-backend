@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
-from rest_framework import generics, status
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework import generics, serializers, status
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -13,6 +15,11 @@ from .serializers import RegisterSerializer, UserProfileSerializer
 User = get_user_model()
 
 
+# 본문이 없는 응답(또는 요청)이 필요한 뷰를 문서화할 때 사용합니다.
+class EmptySerializer(serializers.Serializer):
+    pass
+
+
 # 회원가입
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -20,7 +27,33 @@ class RegisterView(generics.CreateAPIView):
 
 
 # 이메일 토큰
-class ActivateView(generics.GenericAPIView):
+class ActivateView(APIView):
+    @swagger_auto_schema(
+        request_body=None,  # Body 없음
+        manual_parameters=[
+            openapi.Parameter(
+                name="uid",
+                in_=openapi.IN_PATH,
+                description="회원 고유 UUID",
+                type=openapi.TYPE_STRING,
+            ),
+            openapi.Parameter(
+                name="token",
+                in_=openapi.IN_PATH,
+                description="이메일 인증 토큰",
+                type=openapi.TYPE_STRING,
+            ),
+        ],
+        responses={
+            200: EmptySerializer,  # 200 OK, 빈 응답
+            400: openapi.Response(  # 400 Bad Request
+                description="인증 실패 또는 잘못된 요청",
+                examples={
+                    "application/json": {"detail": "유효하지 않은 사용자입니다."}
+                },
+            ),
+        },
+    )
     def get(self, request, uid, token):
         try:
             user = User.objects.get(user_id=uid)
