@@ -1,10 +1,14 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from rest_framework import generics, status
+from rest_framework.generics import RetrieveUpdateDestroyAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from .serializers import RegisterSerializer
+from .serializers import RegisterSerializer, UserProfileSerializer
 
 User = get_user_model()
 
@@ -38,8 +42,8 @@ class ActivateView(generics.GenericAPIView):
         )
 
 
+# 로그인 시 JWT를 발급하고, 쿠키에 저장
 class CookieTokenObtainPairView(TokenObtainPairView):
-    # 로그인 시 JWT를 발급하고, 쿠키에 저장
     def finalize_response(self, request, response, *args, **kwargs):
         response = super().finalize_response(request, response, *args, **kwargs)
         if response.status_code == status.HTTP_200_OK:
@@ -47,14 +51,14 @@ class CookieTokenObtainPairView(TokenObtainPairView):
             # access_token을 HttpOnly 쿠키로 저장
             response.set_cookie(
                 key="access_token",
-                value=data.get("access"),
+                value=data.get["access"],
                 httponly=True,
                 samesite="Lax",
             )
             # refresh_token을 HttpOnly 쿠키로 저장
             response.set_cookie(
                 key="refresh_token",
-                value=data.get("refresh"),
+                value=data.get["refresh"],
                 httponly=True,
                 samesite="Lax",
             )
@@ -62,8 +66,8 @@ class CookieTokenObtainPairView(TokenObtainPairView):
         return response
 
 
+# 쿠키 기반 refresh_token으로 access_token을 재발급
 class CookieTokenRefreshView(TokenRefreshView):
-    # 쿠키 기반 refresh_token으로 access_token을 재발급
     def finalize_response(self, request, response, *args, **kwargs):
         response = super().finalize_response(request, response, *args, **kwargs)
         if response.status_code == status.HTTP_200_OK:
@@ -71,9 +75,54 @@ class CookieTokenRefreshView(TokenRefreshView):
             # 새로운 access_token을 쿠키에 업데이트
             response.set_cookie(
                 key="access_token",
-                value=data.get("access"),
+                value=data.get["access"],
                 httponly=True,
                 samesite="Lax",
             )
             # refresh_token은 그대로 유지
         return response
+
+
+# Refresh Token을 블랙리스트에 추가하고, 쿠키(access_token, refresh_token) 를 삭제하는 로그아웃
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]  # 인증된 사용자만 호출 가능
+
+    def post(self, request):
+        # 1) 쿠키에서 refresh_token 꺼내기
+        refresh_token = request.COOKIES.get("refresh_token")
+        if not refresh_token:
+            return Response(
+                {"detail": "리프레시 토큰이 없습니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # 2) 토큰 블랙리스트에 추가
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+        except Exception:
+            return Response(
+                {"detail": "잘못된 토큰입니다."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 3) 쿠키 삭제 후 응답
+        response = Response(
+            {"detail": "로그아웃 되었습니다."}, status=status.HTTP_200_OK
+        )
+        response.delete_cookie("access_token")
+        response.delete_cookie("refresh_token")
+        return response
+
+
+# 본인 프로필 조회·수정·삭제
+class ProfileView(RetrieveUpdateDestroyAPIView):
+    serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user  # 본인 객체만
+
+    def destroy(self, request, *args, **kwargs):
+        user = self.get_object()
+        self.perform_destroy(user)
+        return Response({"detail": "Deleted successfully"}, status=status.HTTP_200_OK)
