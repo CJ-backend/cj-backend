@@ -27,14 +27,9 @@ from apps.users.views import (
     CookieTokenObtainPairView,
     CookieTokenRefreshView,
     LogoutView,
+    ProfileView,
     RegisterView,
 )
-
-urlpatterns = [
-    path("admin/", admin.site.urls),
-    # apps 단위로 URL 분리 시 예시
-    # path("api/", include("apps.myapp.urls")),
-]
 
 # 개발 모드에서만 Swagger 문서 라우팅 추가
 if settings.DEBUG:
@@ -52,7 +47,8 @@ if settings.DEBUG:
         permission_classes=[permissions.AllowAny],
     )
 
-    urlpatterns += [
+    urlpatterns = [
+        path("admin/", admin.site.urls),
         # JSON / YAML schema
         path(
             "swagger.json", schema_view.without_ui(cache_timeout=0), name="schema-json"
@@ -90,4 +86,6 @@ if settings.DEBUG:
         ),
         # 로그아웃 (Refresh Token 블랙리스트 + 쿠키 삭제)
         path("api/v1/auth/logout/", LogoutView.as_view(), name="token_logout"),
+        # 프로필 조회·수정·삭제
+        path("api/v1/users/me/", ProfileView.as_view(), name="user-profile"),
     ]

@@ -35,3 +35,11 @@ class RegisterSerializer(serializers.ModelSerializer):
             fail_silently=False,
         )
         return user
+
+
+# 프로필 조회·수정·삭제
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("email", "nickname", "name", "phone_number")
+        read_only_fields = ("email",)  # 이메일은 변경 불가
