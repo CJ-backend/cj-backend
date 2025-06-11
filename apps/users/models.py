@@ -12,7 +12,7 @@ class UserManager(BaseUserManager):
             raise ValueError("이메일을 입력해주세요")
         email = self.normalize_email(email)
         user = self.model(
-            id=uuid.uuid4(), email=email, name=name, is_active=False, **extra_fields
+            user_id=uuid.uuid4(), email=email, name=name, is_active=False, **extra_fields
         )
         user.set_password(password)
         user.save(using=self._db)

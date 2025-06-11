@@ -2,11 +2,21 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
 User = get_user_model()
 
 
 class RegisterSerializer(serializers.ModelSerializer):
+    # 이메일 중복 시 에러 메시지 출력
+    email = serializers.EmailField(
+        validators=[
+            UniqueValidator(
+                queryset=User.objects.all(),
+                message="이미 사용 중인 이메일입니다."
+            )
+        ]
+    )
     password = serializers.CharField(write_only=True, min_length=5)
 
     class Meta:
@@ -22,7 +32,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         # 이메일 인증 토큰 생성
         token = default_token_generator.make_token(user)
-        uid = user.id
+        uid = user.user_id
         req = self.context.get("request")
         link = f"{req.scheme}://{req.get_host()}/api/v1/users/activate/{uid}/{token}/"
 
