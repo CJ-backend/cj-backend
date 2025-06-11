@@ -68,8 +68,8 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": True,
     # User 모델의 PK 필드명을 user_id로 지정
-    "USER_ID_FIELD": "user_id",     # User.user_id 속성을 토큰에 담기
-    "USER_ID_CLAIM": "user_id",     # 토큰 클레임 키 이름도 user_id로 설정
+    "USER_ID_FIELD": "user_id",  # User.user_id 속성을 토큰에 담기
+    "USER_ID_CLAIM": "user_id",  # 토큰 클레임 키 이름도 user_id로 설정
 }
 
 

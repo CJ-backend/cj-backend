@@ -12,8 +12,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         validators=[
             UniqueValidator(
-                queryset=User.objects.all(),
-                message="이미 사용 중인 이메일입니다."
+                queryset=User.objects.all(), message="이미 사용 중인 이메일입니다."
             )
         ]
     )

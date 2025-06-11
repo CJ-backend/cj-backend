@@ -68,7 +68,7 @@ class CookieTokenObtainPairView(TokenObtainPairView):
 
 # 쿠키 기반 refresh_token으로 access_token을 재발급
 class CookieTokenRefreshView(APIView):
-    #쿠키에 저장된 refresh_token 으로 access_token 재발급 후, HttpOnly 쿠키에 새로운 access_token 설정
+    # 쿠키에 저장된 refresh_token 으로 access_token 재발급 후, HttpOnly 쿠키에 새로운 access_token 설정
     permission_classes = [IsAuthenticated]  # 인증된 사용자만
 
     def post(self, request, *args, **kwargs):
