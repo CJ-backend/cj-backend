@@ -27,9 +27,36 @@ from apps.users.views import (
     CookieTokenObtainPairView,
     CookieTokenRefreshView,
     LogoutView,
-    ProfileView,
-    RegisterView,
+    RegisterView, ProfileView,
 )
+
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    # 기존 라우팅
+    path("api/v1/users/", include("apps.users.urls", namespace="users")),
+    # 회원가입, 활성화
+    path("api/v1/users/register/", RegisterView.as_view(), name="user-register"),
+    path(
+        "api/v1/users/activate/<uuid:uid>/<str:token>/",
+        ActivateView.as_view(),
+        name="user-activate",
+    ),
+    # JWT 로그인/토큰 갱신
+    path(
+        "api/v1/auth/login/",
+        CookieTokenObtainPairView.as_view(),
+        name="token_obtain_pair",
+    ),
+    path(
+        "api/v1/auth/refresh/",
+        CookieTokenRefreshView.as_view(),
+        name="token_refresh",
+    ),
+    # 로그아웃 (Refresh Token 블랙리스트 + 쿠키 삭제)
+    path("api/v1/auth/logout/", LogoutView.as_view(), name="token_logout"),
+    # 프로필 조회·수정·삭제
+    path("api/v1/users/me/", ProfileView.as_view(), name="user-profile"),
+]
 
 # 개발 모드에서만 Swagger 문서 라우팅 추가
 if settings.DEBUG:
@@ -47,8 +74,7 @@ if settings.DEBUG:
         permission_classes=[permissions.AllowAny],
     )
 
-    urlpatterns = [
-        path("admin/", admin.site.urls),
+    urlpatterns += [
         # JSON / YAML schema
         path(
             "swagger.json", schema_view.without_ui(cache_timeout=0), name="schema-json"
@@ -64,28 +90,5 @@ if settings.DEBUG:
         ),
         # Redoc UI
         path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="redoc"),
-        # 기존 라우팅
-        path("api/v1/users/", include("apps.users.urls", namespace="users")),
-        # 회원가입, 활성화
-        path("api/v1/users/register/", RegisterView.as_view(), name="user-register"),
-        path(
-            "api/v1/users/activate/<uuid:uid>/<str:token>/",
-            ActivateView.as_view(),
-            name="user-activate",
-        ),
-        # JWT 로그인/토큰 갱신
-        path(
-            "api/v1/auth/login/",
-            CookieTokenObtainPairView.as_view(),
-            name="token_obtain_pair",
-        ),
-        path(
-            "api/v1/auth/refresh/",
-            CookieTokenRefreshView.as_view(),
-            name="token_refresh",
-        ),
-        # 로그아웃 (Refresh Token 블랙리스트 + 쿠키 삭제)
-        path("api/v1/auth/logout/", LogoutView.as_view(), name="token_logout"),
-        # 프로필 조회·수정·삭제
-        path("api/v1/users/me/", ProfileView.as_view(), name="user-profile"),
+
     ]
