@@ -26,6 +26,7 @@ from apps.users.views import (
     ActivateView,
     CookieTokenObtainPairView,
     CookieTokenRefreshView,
+    LogoutView,
     RegisterView,
 )
 
@@ -87,4 +88,6 @@ if settings.DEBUG:
             CookieTokenRefreshView.as_view(),
             name="token_refresh",
         ),
+        # 로그아웃 (Refresh Token 블랙리스트 + 쿠키 삭제)
+        path("api/v1/auth/logout/", LogoutView.as_view(), name="token_logout"),
     ]
