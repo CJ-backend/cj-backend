@@ -22,11 +22,12 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
-
 urlpatterns = [
     path("admin/", admin.site.urls),
     # user 매핑
     path("api/v1/users/", include("apps.users.urls", namespace="users")),
+    # account 매핑
+    path("api/v1/accounts/", include("apps.accounts.urls", namespace="accounts")),
 ]
 
 # 개발 모드에서만 Swagger 문서 라우팅 추가

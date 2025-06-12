@@ -10,6 +10,9 @@ from .views import (
     TransactionUpdateView,
 )
 
+app_name = "accounts"
+
+
 urlpatterns = [
     path(
         "account/create/", AccountCreateView.as_view(), name="account-create"
