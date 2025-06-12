@@ -33,30 +33,8 @@ from apps.users.views import (
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    # 기존 라우팅
+    # user 매핑
     path("api/v1/users/", include("apps.users.urls", namespace="users")),
-    # 회원가입, 활성화
-    path("api/v1/users/register/", RegisterView.as_view(), name="user-register"),
-    path(
-        "api/v1/users/activate/<uuid:uid>/<str:token>/",
-        ActivateView.as_view(),
-        name="user-activate",
-    ),
-    # JWT 로그인/토큰 갱신
-    path(
-        "api/v1/auth/login/",
-        CookieTokenObtainPairView.as_view(),
-        name="token_obtain_pair",
-    ),
-    path(
-        "api/v1/auth/refresh/",
-        CookieTokenRefreshView.as_view(),
-        name="token_refresh",
-    ),
-    # 로그아웃 (Refresh Token 블랙리스트 + 쿠키 삭제)
-    path("api/v1/auth/logout/", LogoutView.as_view(), name="token_logout"),
-    # 프로필 조회·수정·삭제
-    path("api/v1/users/me/", ProfileView.as_view(), name="user-profile"),
 ]
 
 # 개발 모드에서만 Swagger 문서 라우팅 추가
