@@ -8,7 +8,9 @@ class CookieJWTAuthentication(JWTAuthentication):
         raw_token = request.COOKIES.get("access_token")
         if raw_token is None:
             return None  # 토큰 없으면 인증 시도 안 함
-        # 검증된 토큰 객체 생성
-        validated_token = self.get_validated_token(raw_token)
-        # 토큰에서 유저 가져와 반환
+        try:
+            validated_token = self.get_validated_token(raw_token)
+        except Exception:
+            # 토큰 만료·오류 등 문제 발생 시 무시하고 anonymous 처리
+            return None
         return self.get_user(validated_token), validated_token

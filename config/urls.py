@@ -18,7 +18,6 @@ Including another URLconf
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
-
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
@@ -32,13 +31,14 @@ from apps.users.views import (
     RegisterView,
 )
 
+# 기본 URL 패턴
 urlpatterns = [
     path("admin/", admin.site.urls),
     # 기존 라우팅
-    path("api/accounts/", include("apps.accounts.urls")),
-    # accounts 앱의 URL 포함
-    path("api/v1/users/", include("apps.users.urls", namespace="users")),
-    # 회원가입, 활성화
+    path("api/accounts/", include("apps.accounts.urls")),  # accounts 앱의 URL 포함
+    path(
+        "api/v1/users/", include("apps.users.urls", namespace="users")
+    ),  # 회원가입, 활성화
     path("api/v1/users/register/", RegisterView.as_view(), name="user-register"),
     path(
         "api/v1/users/activate/<uuid:uid>/<str:token>/",
@@ -64,7 +64,6 @@ urlpatterns = [
 
 # 개발 모드에서만 Swagger 문서 라우팅 추가
 if settings.DEBUG:
-
     schema_view = get_schema_view(
         openapi.Info(
             title="Django Mini Project API",
@@ -75,9 +74,10 @@ if settings.DEBUG:
             license=openapi.License(name="BSD License"),
         ),
         public=True,
-        permission_classes=[permissions.AllowAny],
+        permission_classes=[permissions.IsAuthenticated],  # 인증된 사용자만 접근 가능
     )
 
+    # Swagger UI 관련 경로 추가
     urlpatterns += [
         # JSON / YAML schema
         path(

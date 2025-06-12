@@ -57,7 +57,6 @@ REST_FRAMEWORK = {
     # 인증 클래스를 여기에 추가
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "apps.users.authentication.CookieJWTAuthentication",  # 쿠키 기반 JWT 인증
-        'rest_framework.permissions.IsAuthenticated',
     ),
 }
 
@@ -66,7 +65,7 @@ SIMPLE_JWT = {  # ← ③ 추가
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "AUTH_HEADER_TYPES": ("Bearer",),
-    "ROTATE_REFRESH_TOKENS": False,
+    "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
 }
 

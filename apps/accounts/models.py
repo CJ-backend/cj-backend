@@ -1,6 +1,7 @@
 import uuid
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 from django.db import models
 
@@ -10,8 +11,6 @@ from apps.constants import (
     TRANSACTION_METHOD,
     TRANSACTION_TYPE,
 )
-
-from django.contrib.auth.models import User
 
 
 # 유저의 계좌 정보를 저장하는 테이블
