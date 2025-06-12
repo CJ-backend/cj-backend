@@ -22,6 +22,7 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     # user 매핑
@@ -30,7 +31,6 @@ urlpatterns = [
 
 # 개발 모드에서만 Swagger 문서 라우팅 추가
 if settings.DEBUG:
-
     schema_view = get_schema_view(
         openapi.Info(
             title="Django Mini Project API",
@@ -41,9 +41,10 @@ if settings.DEBUG:
             license=openapi.License(name="BSD License"),
         ),
         public=True,
-        permission_classes=[permissions.AllowAny],
+        permission_classes=[permissions.IsAuthenticated],  # 인증된 사용자만 접근 가능
     )
 
+    # Swagger UI 관련 경로 추가
     urlpatterns += [
         # JSON / YAML schema
         path(
