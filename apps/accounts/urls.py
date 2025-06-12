@@ -2,8 +2,8 @@ from django.urls import path
 
 from .views import (
     AccountCreateView,
+    AccountDeleteView,
     AccountRetrieveView,
-    AccountUpdateView,
     TransactionCreateView,
     TransactionDeleteView,
     TransactionRetrieveView,
@@ -21,8 +21,10 @@ urlpatterns = [
         "account/", AccountRetrieveView.as_view(), name="account-retrieve"
     ),  # 계좌 조회
     path(
-        "account/update/", AccountUpdateView.as_view(), name="account-update"
-    ),  # 계좌 수정 불가
+        "account/<uuid:account_id>/delete/",
+        AccountDeleteView.as_view(),
+        name="account-delete",
+    ),  # 계좌 삭제
     path(
         "transaction/create/",
         TransactionCreateView.as_view(),
