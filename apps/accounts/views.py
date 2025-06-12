@@ -11,3 +11,20 @@ class AccountCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+from rest_framework import permissions
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+
+class AccountRetrieveView(APIView):
+    permission_classes = [permissions.IsAuthenticated]  # 인증된 사용자만 접근 가능
+
+    def get(self, request, *args, **kwargs):
+        try:
+            # 현재 로그인된 사용자의 첫 번째 계좌 정보
+            account = Account.objects.get(user=request.user)
+            serializer = AccountSerializer(account)
+            return Response(serializer.data)
+        except Account.DoesNotExist:
+            return Response({"detail": "Account not found."}, status=404)
