@@ -6,7 +6,7 @@ from rest_framework import status
 from .models import Account, TransactionHistory
 from .serializers import AccountSerializer, TransactionHistorySerializer
 
-# 계좌 생성 API
+# 미션 1: 계좌 생성 API
 class AccountCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]  # 인증된 사용자만 접근 가능
 
@@ -19,8 +19,7 @@ class AccountCreateView(APIView):
             return Response(response_data, status=status.HTTP_201_CREATED)  # 성공적인 응답
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  # 오류가 있는 경우
 
-
-# 계좌 조회 API
+# 미션 2: 계좌 조회 API
 class AccountRetrieveView(APIView):
     permission_classes = [permissions.IsAuthenticated]  # 인증된 사용자만 접근 가능
 
@@ -31,8 +30,7 @@ class AccountRetrieveView(APIView):
             return Response(serializer.data)
         return Response({"detail": "Account not found."}, status=status.HTTP_404_NOT_FOUND)
 
-
-# 계좌 수정 불가 API
+# 미션 3: 계좌 수정 불가 API
 class AccountUpdateView(APIView):
     permission_classes = [permissions.IsAuthenticated]  # 인증된 사용자만 접근 가능
 
@@ -50,8 +48,7 @@ class AccountUpdateView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-
-# 거래 생성 API
+# 미션 4: 거래 생성 API
 class TransactionCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]  # 인증된 사용자만 접근 가능
 
@@ -80,3 +77,59 @@ class TransactionCreateView(APIView):
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)  # 성공적인 응답
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  # 유효하지 않은 데이터가 들어온 경우
+
+# 미션 5: 거래 내역 조회 API
+class TransactionRetrieveView(APIView):
+    permission_classes = [permissions.IsAuthenticated]  # 인증된 사용자만 접근 가능
+
+    def get(self, request, *args, **kwargs):
+        # 사용자의 계좌에 대한 거래 내역을 모두 조회
+        transactions = TransactionHistory.objects.filter(account__user=request.user)
+
+        # 필터링 조건 추가 (예: 거래 금액, 거래 유형)
+        transaction_type = request.query_params.get('transaction_type')
+        if transaction_type:
+            transactions = transactions.filter(transaction_type=transaction_type)
+
+        min_amount = request.query_params.get('min_amount')
+        if min_amount:
+            transactions = transactions.filter(transaction_amount__gte=min_amount)
+
+        # 거래 내역이 존재하는 경우 직렬화하여 반환
+        if transactions.exists():
+            serializer = TransactionHistorySerializer(transactions, many=True)
+            return Response(serializer.data)
+        return Response({"detail": "No transactions found."}, status=status.HTTP_404_NOT_FOUND)
+
+# 거래 내역 수정 API
+class TransactionUpdateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]  # 인증된 사용자만 접근 가능
+
+    def put(self, request, *args, **kwargs):
+        try:
+            transaction = TransactionHistory.objects.get(pk=kwargs['pk'], account__user=request.user)
+            # 거래 수정 시 직렬화
+            serializer = TransactionHistorySerializer(transaction, data=request.data)
+
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)  # 수정된 거래 반환
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except TransactionHistory.DoesNotExist:
+            return Response({"detail": "Transaction not found or you don't have permission to edit it."},
+                            status=status.HTTP_404_NOT_FOUND)
+
+# 거래 내역 삭제 API
+class TransactionDeleteView(APIView):
+    permission_classes = [permissions.IsAuthenticated]  # 인증된 사용자만 접근 가능
+
+    def delete(self, request, *args, **kwargs):
+        try:
+            transaction = TransactionHistory.objects.get(pk=kwargs['pk'], account__user=request.user)
+            transaction.delete()  # 거래 내역 삭제
+            return Response({"detail": "Transaction deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+
+        except TransactionHistory.DoesNotExist:
+            return Response({"detail": "Transaction not found or you don't have permission to delete it."},
+                            status=status.HTTP_404_NOT_FOUND)

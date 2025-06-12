@@ -11,4 +11,4 @@ class AccountSerializer(serializers.ModelSerializer):
 class TransactionHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = TransactionHistory
-        fields = ['transaction_type', 'transaction_amount', 'description', 'transaction_details']
+        fields = ['transaction_type', 'transaction_amount', 'description', 'transaction_details', 'transaction_timestamp', 'account']
