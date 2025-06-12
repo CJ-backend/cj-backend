@@ -3,10 +3,10 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from .models import Account
-from .serializers import AccountSerializer
+from .models import Account, TransactionHistory
+from .serializers import AccountSerializer, TransactionHistorySerializer
 
-
+# 계좌 생성 API
 class AccountCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]  # 인증된 사용자만 접근 가능
 
@@ -20,6 +20,7 @@ class AccountCreateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  # 오류가 있는 경우
 
 
+# 계좌 조회 API
 class AccountRetrieveView(APIView):
     permission_classes = [permissions.IsAuthenticated]  # 인증된 사용자만 접근 가능
 
@@ -31,6 +32,7 @@ class AccountRetrieveView(APIView):
         return Response({"detail": "Account not found."}, status=status.HTTP_404_NOT_FOUND)
 
 
+# 계좌 수정 불가 API
 class AccountUpdateView(APIView):
     permission_classes = [permissions.IsAuthenticated]  # 인증된 사용자만 접근 가능
 
@@ -47,3 +49,34 @@ class AccountUpdateView(APIView):
                 {"detail": "Account not found."},
                 status=status.HTTP_404_NOT_FOUND,
             )
+
+
+# 거래 생성 API
+class TransactionCreateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]  # 인증된 사용자만 접근 가능
+
+    def post(self, request, *args, **kwargs):
+        # 요청에서 거래 정보 받아오기
+        serializer = TransactionHistorySerializer(data=request.data)
+
+        if serializer.is_valid():  # 유효성 검사
+            transaction_type = serializer.validated_data['transaction_type']  # 거래 유형
+            transaction_amount = serializer.validated_data['transaction_amount']  # 거래 금액
+            account = Account.objects.get(user=request.user)  # 현재 로그인된 사용자의 계좌
+
+            # 거래 유형에 맞게 계좌 잔액 업데이트
+            if transaction_type == 'IN':
+                account.balance += transaction_amount  # 입금
+            elif transaction_type == 'OUT':
+                if account.balance >= transaction_amount:
+                    account.balance -= transaction_amount  # 출금
+                else:
+                    return Response({"detail": "Insufficient balance."}, status=status.HTTP_400_BAD_REQUEST)
+
+            account.save()  # 계좌 잔액 저장
+
+            # 거래 내역 저장
+            serializer.save(account=account)  # 거래 내역 저장 시 계좌 정보 연결
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)  # 성공적인 응답
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  # 유효하지 않은 데이터가 들어온 경우
