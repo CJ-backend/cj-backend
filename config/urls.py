@@ -18,6 +18,7 @@ Including another URLconf
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
+
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
@@ -34,6 +35,8 @@ from apps.users.views import (
 urlpatterns = [
     path("admin/", admin.site.urls),
     # 기존 라우팅
+    path("api/accounts/", include("apps.accounts.urls")),
+    # accounts 앱의 URL 포함
     path("api/v1/users/", include("apps.users.urls", namespace="users")),
     # 회원가입, 활성화
     path("api/v1/users/register/", RegisterView.as_view(), name="user-register"),

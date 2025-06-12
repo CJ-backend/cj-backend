@@ -11,6 +11,8 @@ from apps.constants import (
     TRANSACTION_TYPE,
 )
 
+from django.contrib.auth.models import User
+
 
 # 유저의 계좌 정보를 저장하는 테이블
 class Account(models.Model):

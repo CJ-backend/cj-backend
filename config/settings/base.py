@@ -57,6 +57,7 @@ REST_FRAMEWORK = {
     # 인증 클래스를 여기에 추가
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "apps.users.authentication.CookieJWTAuthentication",  # 쿠키 기반 JWT 인증
+        'rest_framework.permissions.IsAuthenticated',
     ),
 }
 
