@@ -177,4 +177,9 @@ class ProfileView(RetrieveUpdateDestroyAPIView):
     def destroy(self, request, *args, **kwargs):
         user = self.get_object()
         self.perform_destroy(user)
-        return Response({"detail": "Deleted successfully"}, status=status.HTTP_200_OK)
+        response = Response(
+            {"detail": "Deleted successfully"}, status=status.HTTP_200_OK
+        )
+        response.delete_cookie("access_token")
+        response.delete_cookie("refresh_token")
+        return response
