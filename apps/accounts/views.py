@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from rest_framework import permissions, status
+from rest_framework import generics, permissions, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -45,23 +46,14 @@ class AccountRetrieveView(APIView):
         )
 
 
-# 미션 3: 계좌 수정 불가 API
-class AccountUpdateView(APIView):
-    permission_classes = [permissions.IsAuthenticated]  # 인증된 사용자만 접근 가능
+# 3) 계좌 삭제
+class AccountDeleteView(generics.DestroyAPIView):
+    serializer_class = AccountSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = "account_id"
 
-    def put(self, request, *args, **kwargs):
-        try:
-            account = Account.objects.get(user=request.user)
-            # 계좌가 이미 존재하면 수정 불가능하므로 오류 반환
-            return Response(
-                {"detail": "Account information cannot be updated."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        except Account.DoesNotExist:
-            return Response(
-                {"detail": "Account not found."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+    def get_queryset(self):
+        return Account.objects.filter(user=self.request.user)
 
 
 # 미션 4: 거래 생성 API
