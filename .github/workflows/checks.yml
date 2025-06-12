@@ -54,6 +54,10 @@ jobs:
 
       - name: Install packages & dev deps
         run: uv pip install ".[dev]"
+
+      - name: Install Simple JWT dependency
+        run: uv pip install djangorestframework-simplejwt
+
       # isort를 사용하여 import 구문의 정렬 순서를 체크합니다.
       - name: Run isort
         run: uv run isort . --check --diff

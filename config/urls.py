@@ -18,19 +18,19 @@ Including another URLconf
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+from rest_framework import permissions
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    # apps 단위로 URL 분리 시 예시
-    # path("api/", include("apps.myapp.urls")),
+    # user 매핑
+    path("api/v1/users/", include("apps.users.urls", namespace="users")),
 ]
 
 # 개발 모드에서만 Swagger 문서 라우팅 추가
 if settings.DEBUG:
-    from drf_yasg import openapi
-    from drf_yasg.views import get_schema_view
-    from rest_framework import permissions
-
     schema_view = get_schema_view(
         openapi.Info(
             title="Django Mini Project API",
@@ -41,23 +41,24 @@ if settings.DEBUG:
             license=openapi.License(name="BSD License"),
         ),
         public=True,
-        permission_classes=[permissions.AllowAny],
+        permission_classes=[permissions.IsAuthenticated],  # 인증된 사용자만 접근 가능
     )
 
+    # Swagger UI 관련 경로 추가
     urlpatterns += [
+        # JSON / YAML schema
         path(
-            "swagger(<format>\.json|\.yaml)",
-            schema_view.without_ui(cache_timeout=0),
-            name="schema-json",
+            "swagger.json", schema_view.without_ui(cache_timeout=0), name="schema-json"
         ),
+        path(
+            "swagger.yaml", schema_view.without_ui(cache_timeout=0), name="schema-yaml"
+        ),
+        # Swagger UI
         path(
             "swagger/",
             schema_view.with_ui("swagger", cache_timeout=0),
-            name="schema-swagger-ui",
+            name="swagger-ui",
         ),
-        path(
-            "redoc/",
-            schema_view.with_ui("redoc", cache_timeout=0),
-            name="schema-redoc",
-        ),
+        # Redoc UI
+        path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="redoc"),
     ]
