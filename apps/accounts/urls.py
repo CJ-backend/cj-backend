@@ -7,7 +7,7 @@ from .views import (
     TransactionCreateView,
     TransactionDeleteView,
     TransactionListView,
-    TransactionUpdateView
+    TransactionUpdateView,
 )
 
 app_name = "accounts"
