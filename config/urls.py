@@ -20,7 +20,7 @@ from django.contrib import admin
 from django.urls import include, path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
-from rest_framework import permissions
+from rest_framework import authentication, permissions
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -41,7 +41,10 @@ if settings.DEBUG:
             contact=openapi.Contact(email="contact@local.dev"),
             license=openapi.License(name="BSD License"),
         ),
-        public=True,
+        public=False,
+        authentication_classes=[
+            authentication.SessionAuthentication,  # 세션 인증
+        ],
         permission_classes=[permissions.IsAuthenticated],  # 인증된 사용자만 접근 가능
     )
 

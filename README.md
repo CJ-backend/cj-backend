@@ -40,17 +40,17 @@
 ## 'Transaction History' 테이블
  - 계좌의 거래 내역을 저장하는 테이블
 
-| 필드명                      | 타입            | 설명                                              |
-|--------------------------|---------------|---------------------------------------------------|
-| transaction_id           | UUID          | 기본 키, 거래 식별자                                   |
-| account_id               | UUID          | `accounts` 테이블의 외래키, 거래가 발생한 계좌 식별자         |
-| transtacion_amount       | DECIMAL(18,2) | 거래 금액                                           |
-| post_transaction_balance | DECIMAL(18,2) | 거래 이후 잔액                                       |
-| description              | VARCHAR(255)  | 거래 상세 내역 (예: 올리브영, ATM 출금 등)                  |
-| transaction_details      | VARCHAR(255)  | 입출금 타입 (`입금`, `출금`)                            |
-| transaction_type         | VARCHAR(10)   | 입출금 타입 (`입금`, `출금`)                            |
-| transaction_method       | VARCHAR(20)   | 거래 방식 (`현금`, `이체`, `자동이체`, `카드결제` 등)         |
-| transaction_timestamp    | TIMESTAMP     | 거래 일시                                           |
+| 필드명                   | 타입            | 설명                                              |
+|-----------------------|---------------|---------------------------------------------------|
+| transaction_id        | UUID          | 기본 키, 거래 식별자                                   |
+| account_id            | UUID          | `accounts` 테이블의 외래키, 거래가 발생한 계좌 식별자         |
+| transtacion_amount    | DECIMAL(18,2) | 거래 금액                                           |
+| balance               | DECIMAL(18,2) | 거래 이후 잔액                                       |
+| description           | VARCHAR(255)  | 거래 상세 내역 (예: 올리브영, ATM 출금 등)                  |
+| transaction_details   | VARCHAR(255)  | 입출금 타입 (`입금`, `출금`)                            |
+| transaction_type      | VARCHAR(10)   | 입출금 타입 (`입금`, `출금`)                            |
+| transaction_method    | VARCHAR(20)   | 거래 방식 (`현금`, `이체`, `자동이체`, `카드결제` 등)         |
+| transaction_timestamp | TIMESTAMP     | 거래 일시                                           |
 
 
 ## 테이블 간의 관계

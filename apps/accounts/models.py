@@ -1,7 +1,6 @@
 import uuid
 
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 from django.db import models
 
@@ -59,23 +58,27 @@ class TransactionHistory(models.Model):
     )
     # 거래 금액
     transaction_amount = models.DecimalField(
-        "Transaction Amount", max_digits=18, decimal_places=2
+        "Transaction Amount", max_digits=18, decimal_places=0
     )
     # 거래 후 잔액
-    post_transaction_amount = models.DecimalField(
-        "Post Transaction Amount", max_digits=18, decimal_places=2
+    balance = models.DecimalField(
+        "Post Transaction Amount", max_digits=18, decimal_places=0
     )
     # 간단 설명
     description = models.CharField("Description", max_length=255)
     # ATM/계좌이체/카드결제 등 방법 구분
     transaction_details = models.CharField("Transaction Details", max_length=255)
+    # 입출금 상수 선언
+    IN, OUT = TRANSACTION_TYPE[0][0], TRANSACTION_TYPE[1][0]
+    TRANSACTION_TYPE_CHOICES = TRANSACTION_TYPE
+    TRANSACTION_METHOD_CHOICES = TRANSACTION_METHOD
     # 입출금 구분
     transaction_type = models.CharField(
-        "Transaction Type", max_length=10, choices=TRANSACTION_TYPE
+        "Transaction Type", max_length=10, choices=TRANSACTION_TYPE_CHOICES
     )
     # ATM/계좌이체/카드결제 등 방법 구분
     transaction_method = models.CharField(
-        "Transaction Method", max_length=20, choices=TRANSACTION_METHOD
+        "Transaction Method", max_length=20, choices=TRANSACTION_METHOD_CHOICES
     )
 
     transaction_timestamp = models.DateTimeField(
@@ -89,14 +92,14 @@ class TransactionHistory(models.Model):
         ]
 
     def save(self, *args, **kwargs):
-        if not self.pk:
+        if self._state.adding:
             acct = self.account
-            if self.transaction_type == "IN":
+            if self.transaction_type == self.IN:
                 acct.balance += self.transaction_amount
             else:
                 acct.balance -= self.transaction_amount
             acct.save()
-            self.post_transaction_amount = acct.balance
+            self.balance = acct.balance
         super().save(*args, **kwargs)
 
     def __str__(self):
