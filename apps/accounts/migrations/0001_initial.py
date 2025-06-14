@@ -198,11 +198,11 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "post_transaction_amount",
+                    "balance",
                     models.DecimalField(
                         decimal_places=2,
                         max_digits=18,
-                        verbose_name="Post Transaction Amount",
+                        verbose_name="Balance",
                     ),
                 ),
                 (

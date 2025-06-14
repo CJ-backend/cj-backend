@@ -16,7 +16,7 @@ class TransactionHistoryAdmin(admin.ModelAdmin):
         "transaction_id",
         "account",
         "transaction_amount",
-        "post_transaction_amount",
+        "balance",
         "description",
         "transaction_type",
         "transaction_method",

@@ -106,8 +106,8 @@ ACCOUNT_TYPE = [
 
 # 거래 타입
 TRANSACTION_TYPE = [
-    ("DEPOSIT", "입금"),
-    ("WITHDRAW", "출금"),
+    ("IN", "입금"),
+    ("OUT", "출금"),
 ]
 
 # 거래 종류
