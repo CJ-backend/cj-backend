@@ -158,7 +158,7 @@ class Migration(migrations.Migration):
                 (
                     "balance",
                     models.DecimalField(
-                        decimal_places=2,
+                        decimal_places=0,
                         default=0,
                         max_digits=18,
                         verbose_name="Balance",
@@ -192,7 +192,7 @@ class Migration(migrations.Migration):
                 (
                     "transaction_amount",
                     models.DecimalField(
-                        decimal_places=2,
+                        decimal_places=0,
                         max_digits=18,
                         verbose_name="Transaction Amount",
                     ),
@@ -200,7 +200,7 @@ class Migration(migrations.Migration):
                 (
                     "balance",
                     models.DecimalField(
-                        decimal_places=2,
+                        decimal_places=0,
                         max_digits=18,
                         verbose_name="Balance",
                     ),

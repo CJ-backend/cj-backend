@@ -32,7 +32,7 @@
 | account_number | VARCHAR(20)   | 계좌번호 (유니크)                  |
 | bank_code      | VARCHAR(10)   | 은행 코드 (카카오뱅크, KB, NH 등)     |
 | account_type   | VARCHAR(30)   | 계좌 종류 (입출금, 마이너스 등)         |
-| balance        | DECIMAL(18,2) | 현재 잔액                       |
+| balance        | DECIMAL(18,0) | 현재 잔액                       |
 | created_at     | DATETIME      | 계좌 생성일                      |
 | update_at      | DATETIME      | 계좌 정보 수정일                   |
 
@@ -44,8 +44,8 @@
 |-----------------------|---------------|---------------------------------------------------|
 | transaction_id        | UUID          | 기본 키, 거래 식별자                                   |
 | account_id            | UUID          | `accounts` 테이블의 외래키, 거래가 발생한 계좌 식별자         |
-| transtacion_amount    | DECIMAL(18,2) | 거래 금액                                           |
-| balance               | DECIMAL(18,2) | 거래 이후 잔액                                       |
+| transtacion_amount    | DECIMAL(18,0) | 거래 금액                                           |
+| balance               | DECIMAL(18,0) | 거래 이후 잔액                                       |
 | description           | VARCHAR(255)  | 거래 상세 내역 (예: 올리브영, ATM 출금 등)                  |
 | transaction_details   | VARCHAR(255)  | 입출금 타입 (`입금`, `출금`)                            |
 | transaction_type      | VARCHAR(10)   | 입출금 타입 (`입금`, `출금`)                            |
