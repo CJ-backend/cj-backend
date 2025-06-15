@@ -31,8 +31,8 @@ class Account(models.Model):
     bank_code = models.CharField("Bank Code", max_length=10, choices=BANK_CODES)
     # 계좌 종류
     account_type = models.CharField("Account Type", max_length=30, choices=ACCOUNT_TYPE)
-    # 잔액 (소수점 2자리)
-    balance = models.DecimalField("Balance", max_digits=18, decimal_places=2, default=0)
+    # 잔액
+    balance = models.DecimalField("Balance", max_digits=18, decimal_places=0, default=0)
     create_at = models.DateTimeField("Create At", auto_now_add=True)  # 생성 일시
     update_at = models.DateTimeField("Update At", auto_now=True)  # 수정 일시
 

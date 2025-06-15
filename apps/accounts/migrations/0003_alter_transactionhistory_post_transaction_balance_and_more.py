@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
             model_name="transactionhistory",
             name="balance",
             field=models.DecimalField(
-                decimal_places=2, max_digits=18, verbose_name="BALANCE"
+                decimal_places=0, max_digits=18, verbose_name="BALANCE"
             ),
         ),
         migrations.AlterField(
