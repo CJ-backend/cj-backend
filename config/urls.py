@@ -66,3 +66,7 @@ if settings.DEBUG:
         # Redoc UI
         path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="redoc"),
     ]
+#  정적 파일 서빙용 코드
+from django.conf.urls.static import static
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
