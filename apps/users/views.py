@@ -10,7 +10,11 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from .serializers import RegisterSerializer, UserProfileSerializer
+from .serializers import (
+    RegisterSerializer,
+    UserProfileSerializer,
+    UserProfileUpdateSerializer,
+)
 
 User = get_user_model()
 
@@ -168,8 +172,13 @@ class LogoutView(APIView):
 
 # 본인 프로필 조회·수정·삭제
 class ProfileView(RetrieveUpdateDestroyAPIView):
-    serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticated]
+    http_method_names = ["get", "patch", "delete"]
+
+    def get_serializer_class(self):
+        if self.request.method.lower() == "patch":
+            return UserProfileUpdateSerializer  #  PATCH 요청엔 이 serializer 사용
+        return UserProfileSerializer  #  GET 요청엔 원래대로
 
     def get_object(self):
         return self.request.user  # 본인 객체만

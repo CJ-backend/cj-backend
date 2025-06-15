@@ -15,16 +15,16 @@ app_name = "accounts"
 
 urlpatterns = [
     path(
-        "account/create/", AccountCreateView.as_view(), name="account-create"
+        "accounts/create/", AccountCreateView.as_view(), name="account-create"
     ),  # 계좌 생성
-    path("account/", AccountListView.as_view(), name="account-list"),  # 계좌 조회
+    path("accounts/", AccountListView.as_view(), name="account-list"),  # 계좌 조회
     path(
-        "account/<uuid:account_id>/delete/",
+        "accounts/<uuid:account_id>/delete/",
         AccountDeleteView.as_view(),
         name="account-delete",
     ),  # 계좌 삭제
     path(
-        "transaction/create/",
+        "transactions/create/",
         TransactionCreateView.as_view(),
         name="transaction-create",
     ),  # 거래 생성
@@ -32,12 +32,12 @@ urlpatterns = [
         "transactions/", TransactionListView.as_view(), name="transaction-list"
     ),  # 거래 내역 조회
     path(
-        "transaction/update/<uuid:pk>/",
+        "transactions/update/<uuid:transaction_id>/",
         TransactionUpdateView.as_view(),
         name="transaction-update",
     ),  # 거래 내역 수정
     path(
-        "transaction/delete/<uuid:pk>/",
+        "transactions/delete/<uuid:transaction_id>/",
         TransactionDeleteView.as_view(),
         name="transaction-delete",
     ),  # 거래 내역 삭제

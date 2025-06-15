@@ -68,9 +68,21 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-# 프로필 조회·수정·삭제
+# 프로필 조회·삭제
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("email", "nickname", "name", "phone_number")
         read_only_fields = ("email",)  # 이메일은 변경 불가
+
+
+# 프로필 수정
+class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("nickname", "name", "phone_number")
+        extra_kwargs = {
+            "nickname": {"required": False},
+            "name": {"required": False},
+            "phone_number": {"required": False},
+        }
