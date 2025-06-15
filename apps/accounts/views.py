@@ -1,4 +1,4 @@
-from rest_framework import generics, permissions, serializers, status
+from rest_framework import generics, serializers
 from rest_framework.permissions import IsAuthenticated
 
 from .models import Account, TransactionHistory
@@ -64,7 +64,9 @@ class TransactionListView(generics.ListAPIView):
     serializer_class = TransactionSerializer
 
     def get_queryset(self):
-        qs = TransactionHistory.objects.filter(account__user=self.request.user)
+        qs = TransactionHistory.objects.filter(
+            account__user=self.request.user, is_canceled=False
+        )
         tp = self.request.query_params.get("transaction_type")
         if tp:
             qs = qs.filter(transaction_type=tp)
@@ -81,18 +83,24 @@ class TransactionListView(generics.ListAPIView):
 class TransactionUpdateView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = TransactionPatchSerializer
-    lookup_field = "pk"
+    lookup_field = "transaction_id"
     http_method_names = ["patch"]
 
     def get_queryset(self):
-        return TransactionHistory.objects.filter(account__user=self.request.user)
+        return TransactionHistory.objects.filter(
+            account__user=self.request.user, is_canceled=False
+        )
 
 
 # 거래 내역 삭제 API
 class TransactionDeleteView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = TransactionSerializer
-    lookup_field = "pk"
+    lookup_field = "transaction_id"
 
     def get_queryset(self):
         return TransactionHistory.objects.filter(account__user=self.request.user)
+
+    def perform_destroy(self, instance):
+        # 실제 삭제 대신 soft-delete(cancel) 로직을 실행
+        instance.cancel()

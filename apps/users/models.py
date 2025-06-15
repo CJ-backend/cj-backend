@@ -7,15 +7,18 @@ from django.db import models
 
 class UserManager(BaseUserManager):
     # 일반 유저 메서드
-    def create_user(self, email, password=None, name=None, **extra_fields):
+    def create_user(self, email, password=None, **extra_fields):
         if not email:
             raise ValueError("이메일을 입력해주세요")
         email = self.normalize_email(email)
+
+        extra_fields.setdefault("is_active", False)
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_superuser", False)
+
         user = self.model(
             user_id=uuid.uuid4(),
             email=email,
-            name=name,
-            is_active=False,
             **extra_fields,
         )
         user.set_password(password)
@@ -23,7 +26,7 @@ class UserManager(BaseUserManager):
         return user
 
     # 슈퍼 유저 생성 메서드
-    def create_superuser(self, email, password, name, **extra_fields):
+    def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
@@ -33,7 +36,7 @@ class UserManager(BaseUserManager):
         if not extra_fields.get("is_superuser"):
             raise ValueError("슈퍼유저는 is_superuser=True 이어야 합니다.")
 
-        return self.create_user(email, password, name, **extra_fields)
+        return self.create_user(email, password, **extra_fields)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -52,7 +55,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["name"]
+    REQUIRED_FIELDS = ["name", "nickname"]
 
     class Meta:
         db_table = "user"

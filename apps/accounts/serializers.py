@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Account, TransactionHistory
+from .models import Account, TransactionHistory, recalculate_balances
 
 
 class AccountSerializer(serializers.ModelSerializer):
@@ -42,12 +42,14 @@ class TransactionSerializer(serializers.ModelSerializer):
             "transaction_type",
             "transaction_method",
             "transaction_timestamp",
+            "is_canceled",
         )
         read_only_fields = (
             "transaction_id",
             "account",
             "balance",
             "transaction_timestamp",
+            "is_canceled",
         )
         # 생성 시 필수요청 필드만 따로 지정
         extra_kwargs = {
@@ -70,3 +72,27 @@ class TransactionPatchSerializer(serializers.ModelSerializer):
             for f in TransactionSerializer.Meta.fields
             if f not in TransactionSerializer.Meta.read_only_fields
         }
+
+    def update(self, instance, validated_data):
+        old_amount = instance.transaction_amount
+        new_amount = validated_data.get("transaction_amount", old_amount)
+        transaction_type = instance.transaction_type  # 'IN' 또는 'OUT'
+
+        # balance 업데이트
+        account = instance.account
+        delta = new_amount - old_amount
+
+        if transaction_type == TransactionHistory.IN:
+            account.balance += delta
+        else:
+            account.balance -= delta
+
+        account.save()
+
+        # 실제 필드 업데이트
+        instance = super().update(instance, validated_data)
+
+        # 전체 거래 잔액 재계산
+        recalculate_balances(account)
+
+        return instance

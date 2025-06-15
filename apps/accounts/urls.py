@@ -32,12 +32,12 @@ urlpatterns = [
         "transactions/", TransactionListView.as_view(), name="transaction-list"
     ),  # 거래 내역 조회
     path(
-        "transaction/update/<uuid:pk>/",
+        "transaction/update/<uuid:transaction_id>/",
         TransactionUpdateView.as_view(),
         name="transaction-update",
     ),  # 거래 내역 수정
     path(
-        "transaction/delete/<uuid:pk>/",
+        "transaction/delete/<uuid:transaction_id>/",
         TransactionDeleteView.as_view(),
         name="transaction-delete",
     ),  # 거래 내역 삭제
