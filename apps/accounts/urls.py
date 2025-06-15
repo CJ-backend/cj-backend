@@ -3,10 +3,10 @@ from django.urls import path
 from .views import (
     AccountCreateView,
     AccountDeleteView,
-    AccountRetrieveView,
+    AccountListView,
     TransactionCreateView,
     TransactionDeleteView,
-    TransactionRetrieveView,
+    TransactionListView,
     TransactionUpdateView,
 )
 
@@ -17,9 +17,7 @@ urlpatterns = [
     path(
         "account/create/", AccountCreateView.as_view(), name="account-create"
     ),  # 계좌 생성
-    path(
-        "account/", AccountRetrieveView.as_view(), name="account-retrieve"
-    ),  # 계좌 조회
+    path("account/", AccountListView.as_view(), name="account-list"),  # 계좌 조회
     path(
         "account/<uuid:account_id>/delete/",
         AccountDeleteView.as_view(),
@@ -31,15 +29,15 @@ urlpatterns = [
         name="transaction-create",
     ),  # 거래 생성
     path(
-        "transactions/", TransactionRetrieveView.as_view(), name="transaction-retrieve"
+        "transactions/", TransactionListView.as_view(), name="transaction-list"
     ),  # 거래 내역 조회
     path(
-        "transaction/update/<int:pk>/",
+        "transaction/update/<uuid:transaction_id>/",
         TransactionUpdateView.as_view(),
         name="transaction-update",
     ),  # 거래 내역 수정
     path(
-        "transaction/delete/<int:pk>/",
+        "transaction/delete/<uuid:transaction_id>/",
         TransactionDeleteView.as_view(),
         name="transaction-delete",
     ),  # 거래 내역 삭제

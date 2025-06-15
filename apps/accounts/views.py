@@ -1,49 +1,35 @@
-from django.shortcuts import render
-from rest_framework import generics, permissions, status
+from rest_framework import generics, serializers
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from .models import Account, TransactionHistory
-from .serializers import AccountSerializer, TransactionHistorySerializer
+from .serializers import (
+    AccountSerializer,
+    TransactionPatchSerializer,
+    TransactionSerializer,
+)
 
 
 # 미션 1: 계좌 생성 API
-class AccountCreateView(APIView):
-    permission_classes = [permissions.IsAuthenticated]  # 인증된 사용자만 접근 가능
+class AccountCreateView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = AccountSerializer
 
-    def post(self, request, *args, **kwargs):
-        serializer = AccountSerializer(
-            data=request.data
-        )  # 전달된 데이터를 serializer로 변환
-        if serializer.is_valid():  # 유효성 검사
-            serializer.save(
-                user=request.user
-            )  # 계좌 생성 시 현재 사용자 정보와 함께 저장
-            response_data = serializer.data
-            response_data.pop("user", None)  # 'user' 필드 제외
-            return Response(
-                response_data, status=status.HTTP_201_CREATED
-            )  # 성공적인 응답
-        return Response(
-            serializer.errors, status=status.HTTP_400_BAD_REQUEST
-        )  # 오류가 있는 경우
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        resp = super().create(request, *args, **kwargs)
+        return resp
 
 
 # 미션 2: 계좌 조회 API
-class AccountRetrieveView(APIView):
-    permission_classes = [permissions.IsAuthenticated]  # 인증된 사용자만 접근 가능
+class AccountListView(generics.ListAPIView):
 
-    def get(self, request, *args, **kwargs):
-        accounts = Account.objects.filter(user=request.user)  # 모든 계좌 조회
-        if accounts.exists():
-            serializer = AccountSerializer(
-                accounts, many=True
-            )  # 여러 개의 계좌를 직렬화
-            return Response(serializer.data)
-        return Response(
-            {"detail": "Account not found."}, status=status.HTTP_404_NOT_FOUND
-        )
+    permission_classes = [IsAuthenticated]
+    serializer_class = AccountSerializer
+
+    def get_queryset(self):
+        return Account.objects.filter(user=self.request.user)
 
 
 # 3) 계좌 삭제
@@ -57,122 +43,64 @@ class AccountDeleteView(generics.DestroyAPIView):
 
 
 # 미션 4: 거래 생성 API
-class TransactionCreateView(APIView):
-    permission_classes = [permissions.IsAuthenticated]  # 인증된 사용자만 접근 가능
+class TransactionCreateView(generics.CreateAPIView):
 
-    def post(self, request, *args, **kwargs):
-        # 요청에서 거래 정보 받아오기
-        serializer = TransactionHistorySerializer(data=request.data)
+    permission_classes = [IsAuthenticated]
+    serializer_class = TransactionSerializer
 
-        if serializer.is_valid():  # 유효성 검사
-            transaction_type = serializer.validated_data[
-                "transaction_type"
-            ]  # 거래 유형
-            transaction_amount = serializer.validated_data[
-                "transaction_amount"
-            ]  # 거래 금액
-            account = Account.objects.get(
-                user=request.user
-            )  # 현재 로그인된 사용자의 계좌
+    def perform_create(self, serializer):
+        # 1) 본인 계좌 조회
+        account = Account.objects.filter(user=self.request.user).first()
+        if not account:
+            raise serializers.ValidationError("등록된 계좌가 없습니다.")
 
-            # 거래 유형에 맞게 계좌 잔액 업데이트
-            if transaction_type == "IN":
-                account.balance += transaction_amount  # 입금
-            elif transaction_type == "OUT":
-                if account.balance >= transaction_amount:
-                    account.balance -= transaction_amount  # 출금
-                else:
-                    return Response(
-                        {"detail": "Insufficient balance."},
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
-
-            account.save()  # 계좌 잔액 저장
-
-            # 거래 내역 저장
-            serializer.save(account=account)  # 거래 내역 저장 시 계좌 정보 연결
-
-            return Response(
-                serializer.data, status=status.HTTP_201_CREATED
-            )  # 성공적인 응답
-        return Response(
-            serializer.errors, status=status.HTTP_400_BAD_REQUEST
-        )  # 유효하지 않은 데이터가 들어온 경우
+        # 2) 모델 save() 로만 입출금 로직 실행
+        serializer.save(account=account)
 
 
 # 미션 5: 거래 내역 조회 API
-class TransactionRetrieveView(APIView):
-    permission_classes = [permissions.IsAuthenticated]  # 인증된 사용자만 접근 가능
+class TransactionListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TransactionSerializer
 
-    def get(self, request, *args, **kwargs):
-        # 사용자의 계좌에 대한 거래 내역을 모두 조회
-        transactions = TransactionHistory.objects.filter(account__user=request.user)
-
-        # 필터링 조건 추가 (예: 거래 금액, 거래 유형)
-        transaction_type = request.query_params.get("transaction_type")
-        if transaction_type:
-            transactions = transactions.filter(transaction_type=transaction_type)
-
-        min_amount = request.query_params.get("min_amount")
-        if min_amount:
-            transactions = transactions.filter(transaction_amount__gte=min_amount)
-
-        # 거래 내역이 존재하는 경우 직렬화하여 반환
-        if transactions.exists():
-            serializer = TransactionHistorySerializer(transactions, many=True)
-            return Response(serializer.data)
-        return Response(
-            {"detail": "No transactions found."}, status=status.HTTP_404_NOT_FOUND
+    def get_queryset(self):
+        qs = TransactionHistory.objects.filter(
+            account__user=self.request.user, is_canceled=False
         )
+        tp = self.request.query_params.get("transaction_type")
+        if tp:
+            qs = qs.filter(transaction_type=tp)
+        mn = self.request.query_params.get("min_amount")
+        if mn:
+            qs = qs.filter(transaction_amount__gte=mn)
+        mx = self.request.query_params.get("max_amount")
+        if mx:
+            qs = qs.filter(transaction_amount__lte=mx)
+        return qs
 
 
 # 거래 내역 수정 API
-class TransactionUpdateView(APIView):
-    permission_classes = [permissions.IsAuthenticated]  # 인증된 사용자만 접근 가능
+class TransactionUpdateView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TransactionPatchSerializer
+    lookup_field = "transaction_id"
+    http_method_names = ["patch"]
 
-    def put(self, request, *args, **kwargs):
-        try:
-            transaction = TransactionHistory.objects.get(
-                pk=kwargs["pk"], account__user=request.user
-            )
-            # 거래 수정 시 직렬화
-            serializer = TransactionHistorySerializer(transaction, data=request.data)
-
-            if serializer.is_valid():
-                serializer.save()
-                return Response(
-                    serializer.data, status=status.HTTP_200_OK
-                )  # 수정된 거래 반환
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        except TransactionHistory.DoesNotExist:
-            return Response(
-                {
-                    "detail": "Transaction not found or you don't have permission to edit it."
-                },
-                status=status.HTTP_404_NOT_FOUND,
-            )
+    def get_queryset(self):
+        return TransactionHistory.objects.filter(
+            account__user=self.request.user, is_canceled=False
+        )
 
 
 # 거래 내역 삭제 API
-class TransactionDeleteView(APIView):
-    permission_classes = [permissions.IsAuthenticated]  # 인증된 사용자만 접근 가능
+class TransactionDeleteView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TransactionSerializer
+    lookup_field = "transaction_id"
 
-    def delete(self, request, *args, **kwargs):
-        try:
-            transaction = TransactionHistory.objects.get(
-                pk=kwargs["pk"], account__user=request.user
-            )
-            transaction.delete()  # 거래 내역 삭제
-            return Response(
-                {"detail": "Transaction deleted successfully."},
-                status=status.HTTP_204_NO_CONTENT,
-            )
+    def get_queryset(self):
+        return TransactionHistory.objects.filter(account__user=self.request.user)
 
-        except TransactionHistory.DoesNotExist:
-            return Response(
-                {
-                    "detail": "Transaction not found or you don't have permission to delete it."
-                },
-                status=status.HTTP_404_NOT_FOUND,
-            )
+    def perform_destroy(self, instance):
+        # 실제 삭제 대신 soft-delete(cancel) 로직을 실행
+        instance.cancel()
