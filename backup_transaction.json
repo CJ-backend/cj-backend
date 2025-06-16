@@ -1,0 +1,30 @@
+[
+{
+  "model": "accounts.transactionhistory",
+  "pk": "07792901-affa-4565-9d22-8c7a4a675913",
+  "fields": {
+    "account": "218226f6-90f4-4b67-9a2c-4c040638f956",
+    "transaction_amount": "100000",
+    "balance": "100000",
+    "description": "입금",
+    "transaction_type": "IN",
+    "transaction_method": "ATM",
+    "is_canceled": false,
+    "transaction_timestamp": "2025-06-15T07:02:54.598Z"
+  }
+},
+{
+  "model": "accounts.transactionhistory",
+  "pk": "bd6b1b36-e14e-407d-802f-658d46c772c7",
+  "fields": {
+    "account": "218226f6-90f4-4b67-9a2c-4c040638f956",
+    "transaction_amount": "10000",
+    "balance": "90000",
+    "description": "출금",
+    "transaction_type": "OUT",
+    "transaction_method": "ATM",
+    "is_canceled": false,
+    "transaction_timestamp": "2025-06-15T07:03:07.595Z"
+  }
+}
+]

@@ -21,6 +21,7 @@ from django.urls import include, path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import authentication, permissions
+from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -29,6 +30,9 @@ urlpatterns = [
     # account 매핑
     path("api/v1/accounts/", include("apps.accounts.urls", namespace="accounts")),
 ]
+
+#  정적 파일 서빙용 코드
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # 개발 모드에서만 Swagger 문서 라우팅 추가
 if settings.DEBUG:
@@ -66,7 +70,3 @@ if settings.DEBUG:
         # Redoc UI
         path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="redoc"),
     ]
-#  정적 파일 서빙용 코드
-from django.conf.urls.static import static
-
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

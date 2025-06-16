@@ -1,10 +1,10 @@
-from rest_framework import generics, serializers
+from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import ValidationError
 
 from .models import Account, TransactionHistory
 from .serializers import (
     AccountSerializer,
-    TransactionPatchSerializer,
     TransactionSerializer,
 )
 
@@ -49,13 +49,8 @@ class TransactionCreateView(generics.CreateAPIView):
     serializer_class = TransactionSerializer
 
     def perform_create(self, serializer):
-        # 1) 본인 계좌 조회
-        account = Account.objects.filter(user=self.request.user).first()
-        if not account:
-            raise serializers.ValidationError("등록된 계좌가 없습니다.")
 
-        # 2) 모델 save() 로만 입출금 로직 실행
-        serializer.save(account=account)
+        serializer.save()
 
 
 # 미션 5: 거래 내역 조회 API
@@ -77,19 +72,6 @@ class TransactionListView(generics.ListAPIView):
         if mx:
             qs = qs.filter(transaction_amount__lte=mx)
         return qs
-
-
-# 거래 내역 수정 API
-class TransactionUpdateView(generics.UpdateAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = TransactionPatchSerializer
-    lookup_field = "transaction_id"
-    http_method_names = ["patch"]
-
-    def get_queryset(self):
-        return TransactionHistory.objects.filter(
-            account__user=self.request.user, is_canceled=False
-        )
 
 
 # 거래 내역 삭제 API

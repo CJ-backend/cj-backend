@@ -7,7 +7,6 @@ from .views import (
     TransactionCreateView,
     TransactionDeleteView,
     TransactionListView,
-    TransactionUpdateView,
 )
 
 app_name = "accounts"
@@ -31,11 +30,6 @@ urlpatterns = [
     path(
         "transactions/", TransactionListView.as_view(), name="transaction-list"
     ),  # 거래 내역 조회
-    path(
-        "transactions/update/<uuid:transaction_id>/",
-        TransactionUpdateView.as_view(),
-        name="transaction-update",
-    ),  # 거래 내역 수정
     path(
         "transactions/delete/<uuid:transaction_id>/",
         TransactionDeleteView.as_view(),

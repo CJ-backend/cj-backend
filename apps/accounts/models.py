@@ -66,8 +66,6 @@ class TransactionHistory(models.Model):
     )
     # 간단 설명
     description = models.CharField("Description", max_length=255)
-    # ATM/계좌이체/카드결제 등 방법 구분
-    transaction_details = models.CharField("Transaction Details", max_length=255)
     # 입출금 상수 선언
     IN, OUT = TRANSACTION_TYPE[0][0], TRANSACTION_TYPE[1][0]
     TRANSACTION_TYPE_CHOICES = TRANSACTION_TYPE
@@ -125,22 +123,3 @@ class TransactionHistory(models.Model):
             f"{self.transaction_amount}원 – "
             f"{self.transaction_timestamp:%Y-%m-%d %H:%M}"
         )
-
-
-# 거래 잔액 재계산
-def recalculate_balances(account):
-    balance = 0
-    transactions = account.transactions.filter(is_canceled=False).order_by(
-        "transaction_timestamp", "pk"
-    )
-
-    for tx in transactions:
-        if tx.transaction_type == tx.IN:
-            balance += tx.transaction_amount
-        else:
-            balance -= tx.transaction_amount
-        tx.balance = balance
-        tx.save(update_fields=["balance"])
-
-    account.balance = balance
-    account.save(update_fields=["balance"])
