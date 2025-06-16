@@ -26,3 +26,8 @@ exclude = ["static", "templates"]
 
 [tool.isort]
 profile = "black"
+
+[dependency-groups]
+prod = [
+    "django-cors-headers>=4.7.0",
+]
