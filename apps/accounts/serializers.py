@@ -31,9 +31,7 @@ class AccountSerializer(serializers.ModelSerializer):
 # 거래 생성,조회,삭제
 class TransactionSerializer(serializers.ModelSerializer):
     # 계좌 UUID 직접 입력받을 수 있게 설정
-    account = serializers.PrimaryKeyRelatedField(
-        queryset=Account.objects.all()
-    )
+    account = serializers.PrimaryKeyRelatedField(queryset=Account.objects.all())
 
     class Meta:
         model = TransactionHistory
@@ -73,5 +71,3 @@ class TransactionSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("본인의 계좌가 아닙니다.")
 
         return value
-
-
